@@ -1,14 +1,11 @@
-INCLUDES := -I./ -I../ -I../include/ -I../drivers/include
+INCLUDES := -I../include
 %.o: %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<
-
 %.o: %.S
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<
 
 .PHONY: clean
-
-all: print.o printf.o
-
+all: print.o printf.o pmap.o asm.o
 clean:
 	rm -rf *~ *.o
 

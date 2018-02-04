@@ -1,12 +1,12 @@
-INCLUDES := -I./ -I../ -I../include/
+INCLUDES := -I../include
 %.o: %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<
-
 %.o: %.S
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<
 
 .PHONY: clean
-all: start.o
+all: start.o vm.o
 clean:
 	rm -rf *~ *.o
+
 include ../include.mk
