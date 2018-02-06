@@ -37,6 +37,10 @@ _start:
     eret
 
 _el1_start:
+    // load exception vector
+    ldr x0, =vectors
+    msr vbar_el1, x0
+
     ldr x0, =0x440488
     msr mair_el1, x0
     
@@ -56,6 +60,7 @@ _el1_start:
     isb
     
     ldr x1, =main
-    br x1
+    blr x1
+1:  wfe
     b 1b
 

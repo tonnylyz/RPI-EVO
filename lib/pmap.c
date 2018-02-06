@@ -95,7 +95,7 @@ int pgdir_walk(Pde *pgdir, u_long va, int create, Pte **ppte) {
 int page_insert(Pde *pgdir, struct Page *pp, u_long va, u_int perm) {
     u_int PERM;
     Pte *pgtable_entry;
-    PERM = perm | PTE_NORMAL | PTE_INNER_SHARE | PTE_USER | PTE_RW | PTE_AF | PTE_4KB;
+    PERM = perm | PTE_NORMAL | PTE_INNER_SHARE | PTE_AF | PTE_4KB;
     pgdir_walk(pgdir, va, 1, &pgtable_entry);
     if ((*pgtable_entry & PTE_4KB) != 0) {
         printf("[WARNING] page_insert : a page was already here.\n");

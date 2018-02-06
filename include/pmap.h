@@ -57,7 +57,7 @@ void page_remove(Pde *pgdir, u_long va);
 
 void map_segment(Pde *pgdir, u_long va, u_long size, u_long pa, int perm);
 
-extern void tlb_invalidate();
+void tlb_invalidate();
 
 void bcopy(const void *src, void *dst, size_t len);
 
