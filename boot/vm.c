@@ -55,6 +55,7 @@ void boot_map_segment(Pde *pgdir, u_long va, u_long size, u_long pa, int perm) {
         *pte = PTE_ADDR(pa + i) | perm | PTE_KERN | PTE_RW | PTE_AF | PTE_4KB;
     }
 }
+/*
 
 volatile unsigned int __attribute__((aligned(16))) mbox[36];
 
@@ -72,6 +73,7 @@ int mbox_call(unsigned char ch) {
             return mbox[1] == 0x80000000;
     }
 }
+*/
 
 void uart_init() {
 #define UART0_IBRD      ((volatile u_int*)(0x3F201024))
@@ -86,7 +88,7 @@ void uart_init() {
 #define UART0_FR        ((volatile u_int*)(0x3F201018))
     register unsigned int r;
     *UART0_CR = 0;
-    mbox[0] = 8 * 4;
+/*    mbox[0] = 8 * 4;
     mbox[1] = 0;
     mbox[2] = 0x38002; // set clock rate
     mbox[3] = 12;
@@ -94,7 +96,7 @@ void uart_init() {
     mbox[5] = 2;           // UART clock
     mbox[6] = 4000000;     // 4Mhz
     mbox[7] = 0;
-    mbox_call(8);
+    mbox_call(8);*/
     r = *GPFSEL1;
     r &= ~((7 << 12) | (7 << 15)); // gpio14, gpio15
     r |= (4 << 12) | (4 << 15);    // alt0
