@@ -4,7 +4,7 @@
 #define ARCH_TIMER_CTRL_IT_MASK		(1 << 1)
 #define ARCH_TIMER_CTRL_IT_STAT		(1 << 2)
 
-void set_next_event(unsigned long evt) {
+void kclock_next(unsigned long evt) {
     if (evt == 0) evt = 10000000;
     register unsigned long ctl;
     asm volatile ("mrs %0, cntp_ctl_el0" : "=r"(ctl));
@@ -15,5 +15,5 @@ void set_next_event(unsigned long evt) {
 }
 
 void kclock_init() {
-    set_next_event(0);
+    kclock_next(0);
 }

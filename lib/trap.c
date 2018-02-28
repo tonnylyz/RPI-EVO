@@ -31,7 +31,7 @@ u64 get_far() {
 void handle_int() {
     printf("\n[Clock Interrupt]\n");
     sched_yield();
-    set_next_event(0);
+    kclock_next(0);
 }
 
 void handle_syscall(char c) {
