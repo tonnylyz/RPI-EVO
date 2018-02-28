@@ -1,4 +1,4 @@
-#include <timer.h>
+#include <kclock.h>
 #include <sched.h>
 #include <printf.h>
 #include <mmu.h>
@@ -30,12 +30,12 @@ u64 get_far() {
 // Handle Clock Interrupt
 void handle_int() {
     printf("\n[Clock Interrupt]\n");
-    clear_clock_int();
     sched_yield();
-    setup_clock_int(0);
+    set_next_event(0);
 }
 
 void handle_syscall(char c) {
+    printf("\n[Syscall]\n");
     printf("%c", c);
 }
 

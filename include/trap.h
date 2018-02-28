@@ -9,6 +9,7 @@ struct Trapframe
 {
     u_long spsr;
     u_long elr;
+    u_long esr;
     u_long sp;
     u_long regs[31];
 };

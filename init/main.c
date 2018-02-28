@@ -21,12 +21,16 @@ void main() {
     env_init();
     printf("env_init ok!\n");
 
-    sd_readblock(50000, program, 147);
+
+    sd_readblock(1000, program, 147);
+    printf("%8x\n", ((int *)(program))[0]);
     env_create(program, 75000);
 
-    sd_readblock(60000, program, 147);
+    sd_readblock(10000, program, 147);
+    printf("%8x\n", ((int *)(program))[0]);
     env_create(program, 75000);
 
+    
     kclock_init();
     printf("kclock_init ok!\n");
 

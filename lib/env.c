@@ -5,7 +5,6 @@
 #include <sched.h>
 #include <pmap.h>
 #include <printf.h>
-#include <timer.h>
 
 struct Env *envs = (struct Env *) KERNEL_ENVS;        // All environments
 struct Env *curenv;            // the current env
@@ -142,7 +141,6 @@ static void load_icode(struct Env *e, u_char *binary, u_int size) {
         printf("load_icode : Load elf failed.");
     }
     e->env_tf.elr = entry_point;
-    printf("load_icode done.\n");
 }
 
 void env_create(u_char *binary, unsigned int size) {
@@ -167,7 +165,7 @@ void env_destroy(struct Env *e) {
 }
 
 void set_ttbr0(u_long pa) {
-    asm volatile ("msr ttbr0_el1, x0");
+    asm volatile ("msr ttbr0_el1, %0" :: "r" (pa));
 }
 
 void tlb_invalidate() {

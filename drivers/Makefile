@@ -3,7 +3,7 @@ INCLUDES := -I../include
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<
 
 .PHONY: clean
-all: uart.o sd.o timer.o
+all: uart.o sd.o
 clean:
 	rm -rf *~ *.o
 

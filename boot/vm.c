@@ -145,6 +145,8 @@ void uart_hex(unsigned int d) {
     }
 }
 
+#define TIMER_IRQ_CTL ((volatile unsigned int*)(0x40000040))
+
 void vm_init() {
     uart_init();
     Pde *pgdir;
@@ -155,7 +157,9 @@ void vm_init() {
     boot_map_segment(pgdir, 0, MAXPA, 0, PTE_NORMAL | PTE_INNER_SHARE);
     // 0x3F000000 - 0x40000000 Device I/O
     boot_map_segment(pgdir, MAXPA, 0x01000000, MAXPA, PTE_DEVICE | PTE_OUTER_SHARE);
-
+    
+    *TIMER_IRQ_CTL = 0b1111;
+    
     uart_puts("uart_init ok!\n");
     uart_puts("boot_map_segment ok!\n");
 }

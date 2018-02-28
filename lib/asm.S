@@ -1,7 +1,6 @@
 .macro push_time_stack
-    str x0, [sp, #-8]!
-    ldr x0, =0xFFFFFF8001800000 // timestack top
-    // save gpr
+    str x0, [sp, #-16]!
+    ldr x0, =0xFFFFFF8001800000
     stp x29, x30, [x0, #-16]!
     stp x27, x28, [x0, #-16]!
     stp x25, x26, [x0, #-16]!
@@ -17,20 +16,23 @@
     stp x5, x6, [x0, #-16]!
     stp x3, x4, [x0, #-16]!
     stp x1, x2, [x0, #-16]!
-    mrs x1, sp_el0 // fetch sp
-    ldr x2, [sp], #8 // fetch x0 in stack
-    stp x1, x2, [x0, #-16]!
-    mrs x1, elr_el1 // fetch elr
-    mrs x2, spsr_el1 // fetch spsr
-    stp x1, x2, [x0, #-16]!
-    // x0 = 0xFFFFFF80017FFEF0 (trapframe size: 0x110)
+    mov x21, x0
+    ldr x0, [sp], #16
+    mrs x20, sp_el0
+    stp x20, x0, [x21, #-16]!
+    mrs x19, esr_el1
+    mrs x20, elr_el1
+    stp x20, x19, [x21, #-16]!
+    mrs x19, spsr_el1
+    str x19, [x21, #-8]!
 .endm
 
 .macro pop_time_stack
-    ldr x30, =0xFFFFFF80017FFEF0
-    ldp x0, x1, [x30], #16
+    ldr x30, =0xFFFFFF80017FFEE8
+    ldr x0, [x30], #8
     msr spsr_el1, x0
-    msr elr_el1, x1
+    ldp x0, x1, [x30], #16
+    msr elr_el1, x0
     ldp x1, x0, [x30], #16
     msr sp_el0, x1
     ldp x1, x2, [x30], #16
@@ -47,8 +49,7 @@
     ldp x23, x24, [x30], #16
     ldp x25, x26, [x30], #16
     ldp x27, x28, [x30], #16
-    ldr x29, [x30], #8
-    ldr x30, [x30]
+    ldp x29, x30, [x30], #0
 .endm
 
 .macro vector handler
