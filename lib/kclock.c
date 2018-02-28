@@ -4,6 +4,8 @@
 #define ARCH_TIMER_CTRL_IT_MASK		(1 << 1)
 #define ARCH_TIMER_CTRL_IT_STAT		(1 << 2)
 
+#define TIMER_IRQ_CTL ((volatile unsigned int*)(0x40000040 | 0xFFFFFF8000000000UL))
+
 void kclock_next(unsigned long evt) {
     if (evt == 0) evt = 10000000;
     register unsigned long ctl;
@@ -15,5 +17,6 @@ void kclock_next(unsigned long evt) {
 }
 
 void kclock_init() {
+    *TIMER_IRQ_CTL = 0b1111;
     kclock_next(0);
 }
