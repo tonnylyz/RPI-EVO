@@ -21,20 +21,16 @@ void main() {
     env_init();
     printf("env_init ok!\n");
 
-
+    // lab3_a.elf
     sd_readblock(1000, program, 130);
-    printf("%8x\n", ((int *)(program))[0]);
     env_create(program, 66560);
 
+    // lab3_b.elf
     sd_readblock(2000, program, 130);
-    printf("%8x\n", ((int *)(program))[0]);
     env_create(program, 66560);
 
-    
     kclock_init();
     printf("kclock_init ok!\n");
-
-    sched_yield();
 
     while (1) {
         asm volatile ("nop");

@@ -8,7 +8,6 @@ void sched_yield()
         i = i % NENV;
         if (envs[i].env_status == ENV_RUNNABLE) {
             env_run(&envs[i]);
-            printf("Launch proc %d\n", i);
             return;
         }
     }

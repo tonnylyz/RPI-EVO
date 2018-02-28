@@ -29,28 +29,43 @@ u64 get_far() {
 
 // Handle Clock Interrupt
 void handle_int() {
-    printf("\n[Clock Interrupt]\n");
     sched_yield();
     kclock_next(0);
 }
 
-void handle_syscall(char c) {
-    printf("\n[Syscall]\n");
+void handle_syscall(int no, char c) {
     printf("%c", c);
 }
 
 void handle_pgfault() {
-    printf("\n[System Exception]\n");
-    printf("Page fault : va : [%l016x]\n", get_far());
+    printf("\n[Page fault]\n");
     printf("esr : [%08x]\n", get_esr());
+    printf("va  : [%l016x]\n", get_far());
+    while (1) {
+        asm volatile ("nop");
+    }
+}
+
+void handle_sync() {
+    printf("\n[Sync Exception]\n");
+    printf("esr : [%08x]\n", get_esr());
+    printf("far : [%l016x]\n", get_far());
     while (1) {
         asm volatile ("nop");
     }
 }
 
 void handle_err() {
-    printf("\n[System Exception]\n");
-    printf("Kernel died\n");
+    printf("\n[Err Exception]\n");
+    printf("esr : [%08x]\n", get_esr());
+    printf("far : [%l016x]\n", get_far());
+    while (1) {
+        asm volatile ("nop");
+    }
+}
+
+void handle_fiq() {
+    printf("\n[FIQ Interrupt]\n");
     printf("esr : [%08x]\n", get_esr());
     printf("far : [%l016x]\n", get_far());
     while (1) {
