@@ -2,6 +2,5 @@ CMakeLists.txt
 .idea/*
 cmake-build-debug/*
 sdcard.img
-user/*
 
 

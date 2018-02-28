@@ -21,6 +21,13 @@ vmlinux: $(modules)
 	$(CROSS)ld -o $(vmlinux_elf) -e _start -T$(link_script) $(objects)
 	$(CROSS)objcopy $(vmlinux_elf) -O binary $(vmlinux_img)
 
+lab3: user sdcard.img
+	dd if=user/lab3_a.elf of=sdcard.img seek=1000
+	dd if=user/lab3_b.elf of=sdcard.img seek=2000
+
+sdcard.img:
+	dd if=/dev/zero of=sdcard.img bs=512 count=10000
+
 $(modules):
 	$(MAKE) --directory=$@
 

@@ -5,7 +5,7 @@
 #include <kclock.h>
 #include <sched.h>
 
-u_char program[147 * 512]; // 75000 byte
+u_char program[130 * 512];
 
 void main() {
     int r;
@@ -22,13 +22,13 @@ void main() {
     printf("env_init ok!\n");
 
 
-    sd_readblock(1000, program, 147);
+    sd_readblock(1000, program, 130);
     printf("%8x\n", ((int *)(program))[0]);
-    env_create(program, 75000);
+    env_create(program, 66560);
 
-    sd_readblock(10000, program, 147);
+    sd_readblock(2000, program, 130);
     printf("%8x\n", ((int *)(program))[0]);
-    env_create(program, 75000);
+    env_create(program, 66560);
 
     
     kclock_init();
