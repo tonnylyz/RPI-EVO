@@ -91,7 +91,7 @@ int env_alloc(struct Env **newenv, u_int parent_id) {
     return 0;
 }
 
-static int load_icode_mapper(u_long va, u_int32_t sgsize, u_char *bin, u_int32_t bin_size, void *user_data) {
+static int load_icode_mapper(u_long va, u_int sgsize, u_char *bin, u_int bin_size, void *user_data) {
     struct Env *env = (struct Env *) user_data;
     struct Page *p = NULL;
     u_long i;
@@ -155,10 +155,10 @@ void env_free(struct Env *e) {
     u_long pdeno, pmeno, pteno, pdepa, pmepa;
     printf("[%08x] free env %08x\n", curenv ? curenv->env_id : 0, e->env_id);
     for (pdeno = 0; pdeno < PDX(UTOP); pdeno++) {
-        if (!(e->env_pgdir[pdeno] & PTE_4KB)) {
+        if (!(((Pde *)KADDR(e->env_pgdir))[pdeno] & PTE_4KB)) {
             continue;
         }
-        pdepa = PTE_ADDR(e->env_pgdir[pdeno]);
+        pdepa = PTE_ADDR(((Pde *)KADDR(e->env_pgdir)));
         pme = (Pme *)KADDR(pdepa);
         for (pmeno = 0; pmeno < PMX(UTOP); pmeno++) {
             if (!(pme[pmeno] & PTE_4KB)) {
@@ -174,7 +174,7 @@ void env_free(struct Env *e) {
             pme[pmeno] = 0;
             page_decref(pa2page(pmepa));
         }
-        e->env_pgdir[pdeno] = 0;
+        ((Pde *)KADDR(e->env_pgdir))[pdeno] = 0;
         page_decref(pa2page(pdepa));
     }
     page_decref(pa2page((u_long) e->env_pgdir));
