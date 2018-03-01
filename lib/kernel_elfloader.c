@@ -14,8 +14,8 @@ int is_elf_format(u_char *binary) {
 }
 
 int load_elf(u_char *binary, int size, u_long *entry_point, void *user_data,
-             int (*map)(u_long va, u_int32_t sgsize,
-                        u_char *bin, u_int32_t bin_size, void *user_data)) {
+             int (*map)(u_long va, u_int sgsize,
+                        u_char *bin, u_int bin_size, void *user_data)) {
     Elf64_Ehdr *ehdr = (Elf64_Ehdr *) binary;
     Elf64_Phdr *phdr = NULL;
 
