@@ -1,8 +1,13 @@
 #include <mmu.h>
+#include <types.h>
+
+typedef unsigned long Pde;
+typedef unsigned long Pme;
+typedef unsigned long Pte;
 
 u_long freemem;
 
-void boot_bzero(void *b, size_t len) {
+void boot_bzero(void *b, u_long len) {
     u_long max = (u_long) b + len;
     while ((u_long) b + 7 < max) {
         *(u_long *) b = 0;
