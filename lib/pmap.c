@@ -14,7 +14,7 @@ void page_init(void) {
     }
 }
 
-void bzero(void* b, size_t len) {
+void bzero(void* b, u_long len) {
     u_long max = (u_long)b + len;
     while ((u_long)b + 7 < max) {
         *(u_long *) b = 0;
@@ -25,7 +25,7 @@ void bzero(void* b, size_t len) {
     }
 }
 
-void bcopy(const void *src, void *dst, size_t len) {
+void bcopy(const void *src, void *dst, u_long len) {
     u_long max = (u_long)dst + len;
     while ((u_long) dst + 7 < max) {
         *(u_long *) dst = *(u_long *) src;
@@ -92,8 +92,8 @@ int pgdir_walk(Pde *pgdir, u_long va, int create, Pte **ppte) {
     return 0;
 }
 
-int page_insert(Pde *pgdir, struct Page *pp, u_long va, u_int perm) {
-    u_int PERM;
+int page_insert(Pde *pgdir, struct Page *pp, u_long va, u_long perm) {
+    u_long PERM;
     Pte *pgtable_entry;
     PERM = perm | PTE_NORMAL | PTE_INNER_SHARE | PTE_AF | PTE_4KB;
     pgdir_walk(pgdir, va, 1, &pgtable_entry);
@@ -144,7 +144,7 @@ void page_remove(Pde *pgdir, u_long va) {
     tlb_invalidate();
 }
 
-void map_segment(Pde *pgdir, u_long va, u_long size, u_long pa, int perm) {
+void map_segment(Pde *pgdir, u_long va, u_long size, u_long pa, u_long perm) {
     Pte *pte;
     int i;
     for (i = 0; i < size; i += BY2PG) {
