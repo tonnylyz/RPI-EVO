@@ -5,7 +5,7 @@
 #include <kclock.h>
 #include <sched.h>
 
-u_char program[130 * 512];
+u_char program[160 * 512];
 
 void main() {
     int r;
@@ -21,13 +21,14 @@ void main() {
     env_init();
     printf("env_init ok!\n");
 
-    // lab3_a.elf
-    sd_readblock(1000, program, 130);
-    env_create(program, 66560);
 
-    // lab3_b.elf
-    sd_readblock(2000, program, 130);
-    env_create(program, 66560);
+    // fktest.elf
+    //sd_readblock(3000, program, 151);
+    //env_create(program, 76992);
+
+    // pingpong.elf
+    sd_readblock(4000, program, 151);
+    env_create(program, 77152);
 
     kclock_init();
     printf("kclock_init ok!\n");

@@ -25,6 +25,10 @@ lab3: user sdcard.img
 	dd if=user/lab3_a.elf of=sdcard.img seek=1000
 	dd if=user/lab3_b.elf of=sdcard.img seek=2000
 
+lab4: user sdcard.img
+	dd if=user/fktest.elf of=sdcard.img seek=3000
+	dd if=user/pingpong.elf of=sdcard.img seek=4000
+
 sdcard.img:
 	dd if=/dev/zero of=sdcard.img bs=512 count=10000
 
