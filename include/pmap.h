@@ -7,6 +7,10 @@
 #include "printf.h"
 #include "error.h"
 
+typedef unsigned long Pde;
+typedef unsigned long Pme;
+typedef unsigned long Pte;
+
 Pde *boot_pgdir;
 
 LIST_HEAD(Page_list, Page);
@@ -49,18 +53,18 @@ void page_decref(struct Page *pp);
 
 int pgdir_walk(Pde *pgdir, u_long va, int create, Pte **ppte);
 
-int page_insert(Pde *pgdir, struct Page *pp, u_long va, u_int perm);
+int page_insert(Pde *pgdir, struct Page *pp, u_long va, u_long perm);
 
 struct Page *page_lookup(Pde *pgdir, u_long va, Pte **ppte);
 
 void page_remove(Pde *pgdir, u_long va);
 
-void map_segment(Pde *pgdir, u_long va, u_long size, u_long pa, int perm);
+void map_segment(Pde *pgdir, u_long va, u_long size, u_long pa, u_long perm);
 
 void tlb_invalidate();
 
-void bcopy(const void *src, void *dst, size_t len);
+void bcopy(const void *src, void *dst, u_long len);
 
-void bzero(void* b, size_t len);
+void bzero(void* b, u_long len);
 
 #endif //OSLABPI_PMAP_H

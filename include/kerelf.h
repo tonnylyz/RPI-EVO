@@ -4,14 +4,14 @@
 #include <types.h>
 
 /* 64-bit ELF base types. */
-typedef u_int64_t Elf64_Addr;
-typedef u_int16_t Elf64_Half;
-typedef int16_t   Elf64_SHalf;
-typedef u_int64_t Elf64_Off;
-typedef int32_t   Elf64_Sword;
-typedef u_int32_t Elf64_Word;
-typedef u_int64_t Elf64_Xword;
-typedef int64_t   Elf64_Sxword;
+typedef unsigned long Elf64_Addr;
+typedef unsigned short Elf64_Half;
+typedef short Elf64_SHalf;
+typedef unsigned long Elf64_Off;
+typedef int Elf64_Sword;
+typedef unsigned int Elf64_Word;
+typedef unsigned long Elf64_Xword;
+typedef long Elf64_Sxword;
 
 /* The ELF file header.  This appears at the start of every ELF file.  */
 #define EI_NIDENT     (16)
@@ -78,6 +78,6 @@ typedef struct elf64_phdr
 #define SHF_MASKPROC  0xf0000000
 
 int load_elf(u_char *binary, int size, u_long *entry_point, void *user_data,
-             int (*map)(u_long va, u_int32_t sgsize,
-                        u_char *bin, u_int32_t bin_size, void *user_data));
+             int (*map)(u_long va, u_int sgsize,
+                        u_char *bin, u_int bin_size, void *user_data));
 #endif /* kerelf.h */

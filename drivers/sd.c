@@ -1,5 +1,6 @@
 #include <sd.h>
 #include <mmu.h>
+#include <types.h>
 
 #define GPPUD               ((volatile u_int*)(0x3F200094 | 0xFFFFFF8000000000UL))
 #define EMMC_STATUS         ((volatile u_int*)(0x3F300024 | 0xFFFFFF8000000000UL))

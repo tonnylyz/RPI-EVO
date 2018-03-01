@@ -1,29 +1,24 @@
 #ifndef OSLABPI_MMU_H
 #define OSLABPI_MMU_H
 
-#ifndef USER_PROGRAM
-#include "types.h"
-#endif
-
 #define MAXPA 0x3F000000
 
-
 #define BY2PG        4096
-#define PDMAP        (4 * 1024 * 1024)    // bytes mapped by a page directory entry
+#define PDMAP        (4 * 1024 * 1024)
 #define PDSHIFT        30
 #define PMSHIFT        21
 #define PGSHIFT        12
 
-#define PDX(va) ((((u_long)(va)) >> 30) & 0x1FF)
-#define PMX(va) ((((u_long)(va)) >> 21) & 0x1FF)
-#define PTX(va) ((((u_long)(va)) >> 12) & 0x1FF)
+#define PDX(va) ((((unsigned long)(va)) >> 30) & 0x1FF)
+#define PMX(va) ((((unsigned long)(va)) >> 21) & 0x1FF)
+#define PTX(va) ((((unsigned long)(va)) >> 12) & 0x1FF)
 
-#define PTE_ADDR(pte) ((u_long)(pte)& 0x7FFFFFF000UL)
+#define PTE_ADDR(pte) ((unsigned long)(pte)& 0x7FFFFFF000UL)
 
-#define PPN(va) (((u_long)(va)) >> 12)
-#define VPN(va) (((u_long)(va) & 0x7FFFFFFFFF) >> 12)
+#define PPN(va) (((unsigned long)(va)) >> 12)
+#define VPN(va) (((unsigned long)(va) & 0x7FFFFFFFFF) >> 12)
 
-#define KADDR(pa) ((u_long)(pa) | 0xFFFFFF8000000000UL)
+#define KADDR(pa) ((unsigned long)(pa) | 0xFFFFFF8000000000UL)
 
 #define KERNEL_LIMIT_PA 0x02000000
 #define KERNEL_TSTOP_PA 0x01800000
@@ -61,9 +56,6 @@
 #define PTE_OUTER_SHARE (2 << 8)
 #define PTE_INNER_SHARE (3 << 8)
 
-typedef u_long Pde;
-typedef u_long Pme;
-typedef u_long Pte;
 
 #define assert(x) do { if (!(x)) panic("assertion failed: %s", #x); } while (0)
 

@@ -1,11 +1,5 @@
-/* See COPYRIGHT for copyright information. */
-
 #ifndef _ENV_H_
 #define _ENV_H_
-
-#ifndef USER_PROGRAM
-#include "types.h"
-#endif
 
 #include "mmu.h"
 #include "queue.h"
@@ -24,24 +18,28 @@
 struct Env {
 	struct Trapframe env_tf;        // Saved registers
 	LIST_ENTRY(Env) env_link;       // Free list
-	u_int env_id;                   // Unique environment identifier
-	u_int env_parent_id;            // env_id of this env's parent
-	u_int env_status;               // Status of the environment
-	Pde  *env_pgdir;                // Kernel virtual address of page dir
+	unsigned int env_id;                   // Unique environment identifier
+	unsigned int env_parent_id;            // env_id of this env's parent
+	unsigned int env_status;               // Status of the environment
+	unsigned long *env_pgdir;                // Kernel virtual address of page dir
 	// Lab 4 IPC
-	u_long env_ipc_value;            // data value sent to us
-	u_long env_ipc_from;             // envid of the sender
-	u_long env_ipc_recving;          // env is blocked receiving
-	u_long env_ipc_dstva;		// va at which to map received page
-	u_long env_ipc_perm;		// perm of page mapping received
+	unsigned long env_ipc_value;            // data value sent to us
+	unsigned int env_ipc_from;             // envid of the sender
+	int env_ipc_recving;          // env is blocked receiving
+	unsigned long env_ipc_dstva;		// va at which to map received page
+	unsigned long env_ipc_perm;		// perm of page mapping received
 
 	// Lab 4 fault handling
-	u_long env_pgfault_handler;      // page fault state
-	u_long env_xstacktop;            // top of exception stack
+	unsigned long env_pgfault_handler;      // page fault state
+	unsigned long env_xstacktop;            // top of exception stack
 
 	// Lab 6 scheduler counts
-	u_int env_runs;			// number of times been env_run'ed
+	unsigned int env_runs;			// number of times been env_run'ed
 };
+
+#ifndef USER_LIB
+
+#include <types.h>
 
 LIST_HEAD(Env_list, Env);
 extern struct Env *envs;		// All environments
@@ -55,5 +53,7 @@ void env_destroy(struct Env *e);
 
 int envid2env(u_int envid, struct Env **penv, int checkperm);
 void env_run(struct Env *e);
+
+#endif // USER_LIB
 
 #endif // !_ENV_H_
