@@ -11,7 +11,7 @@
 #define GET_ENV_ASID(envid) (((envid)>> 11)<<6)
 
 // Values of env_status in struct Env
-#define ENV_FREE	0
+#define ENV_FREE			0
 #define ENV_RUNNABLE		1
 #define ENV_NOT_RUNNABLE	2
 

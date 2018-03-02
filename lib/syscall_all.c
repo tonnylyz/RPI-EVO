@@ -9,7 +9,7 @@
 extern struct Env *curenv;
 
 void sys_set_return(unsigned long r) {
-    struct Trapframe *tf = (struct Trapframe *)(TIMESTACKTOP - sizeof(struct Trapframe));
+    struct Trapframe *tf = (struct Trapframe *)(K_TIMESTACK_TOP - sizeof(struct Trapframe));
     tf->regs[0] = (u_long) r;
 }
 
@@ -50,7 +50,7 @@ int sys_mem_alloc(int sysno, unsigned int envid, unsigned long va, unsigned long
     struct Env *env;
     struct Page *ppage;
     int ret;
-    if (va > UTOP) {
+    if (va >= U_LIMIT) {
         printf("[ERR] sys_mem_alloc va\n");
         return -1;
     }
@@ -124,7 +124,7 @@ unsigned int sys_env_alloc() {
         printf("[ERR] sys_env_alloc : env_alloc\n");
         return r;
     }
-    bcopy((void *)(TIMESTACKTOP - sizeof(struct Trapframe)), &e->env_tf, sizeof(struct Trapframe));
+    bcopy((void *)(K_TIMESTACK_TOP - sizeof(struct Trapframe)), &e->env_tf, sizeof(struct Trapframe));
     e->env_status = ENV_NOT_RUNNABLE;
     e->env_tf.regs[0] = 0;
     e->env_ipc_recving = 0;
@@ -184,7 +184,7 @@ char sys_cgetc() {
 unsigned long sys_pgtable_entry(int sysno, unsigned long va) {
     Pte *pte;
     struct Page *page;
-    page = page_lookup((u_long *)KADDR(curenv->env_pgdir), va, &pte);
+    page = page_lookup(curenv->env_pgdir, va, &pte);
     if (page == NULL) {
         return 0;
     }
@@ -200,13 +200,13 @@ unsigned int sys_fork() {
     struct Page *pp;
     envid = sys_env_alloc();
     envid2env(envid, &e, 0);
-    for (va = 0; va < USTACKTOP; va += BY2PG) {
-        p = page_lookup((u_long *)KADDR(curenv->env_pgdir), va, &pte);
+    for (va = 0; va < U_STACK_TOP; va += BY2PG) {
+        p = page_lookup(curenv->env_pgdir, va, &pte);
         if (p == NULL)
             continue;
         page_alloc(&pp);
         bcopy((void *)page2kva(p), (void *)page2kva(pp), BY2PG);
-        page_insert((u_long *)KADDR(e->env_pgdir), pp, va, PTE_USER | PTE_RW);
+        page_insert(e->env_pgdir, pp, va, PTE_USER | PTE_RW);
     }
     e->env_status = ENV_RUNNABLE;
     return envid;

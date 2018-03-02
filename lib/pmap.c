@@ -1,15 +1,16 @@
 #include "pmap.h"
-struct Page *pages = (struct Page *)KERNEL_PAGES;
+struct Page *pages = (struct Page *)K_PAGES_BASE;
 static struct Page_list page_free_list;
 
 void page_init(void) {
     LIST_INIT(&page_free_list);
-    u_int used_index = PPN(KERNEL_LIMIT_PA);
+    u_int used_index = P_RESERVED_TOP / BY2PG;
     u_int i;
     for (i = 0; i < used_index; i++) {
         pages[i].pp_ref = 1;
     }
-    for (i = used_index; i < MAXPA / BY2PG; i++) {
+    for (i = used_index; i < P_LIMIT / BY2PG; i++) {
+        pages[i].pp_ref = 0;
         LIST_INSERT_HEAD(&page_free_list, &pages[i], pp_link);
     }
 }
@@ -149,6 +150,6 @@ void map_segment(Pde *pgdir, u_long va, u_long size, u_long pa, u_long perm) {
     int i;
     for (i = 0; i < size; i += BY2PG) {
         pgdir_walk(pgdir, va + i, 1, &pte);
-        *pte = PTE_ADDR(pa + i) | perm | PTE_4KB;
+        *pte = PTE_ADDR(pa + i) | perm | PTE_NORMAL | PTE_INNER_SHARE | PTE_AF | PTE_4KB;
     }
 }

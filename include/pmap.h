@@ -8,7 +8,6 @@
 #include "error.h"
 
 typedef unsigned long Pde;
-typedef unsigned long Pme;
 typedef unsigned long Pte;
 
 Pde *boot_pgdir;
@@ -37,7 +36,7 @@ static inline u_long page2kva(struct Page *pp) {
 
 /* Get the Page struct whose physical address is 'pa'. */
 static inline struct Page *pa2page(u_long pa) {
-    if (PPN(pa) >= MAXPA / BY2PG) {
+    if (PPN(pa) >= P_LIMIT / BY2PG) {
         panic("pa2page called with invalid pa: %lx", pa);
     }
     return &pages[PPN(pa)];

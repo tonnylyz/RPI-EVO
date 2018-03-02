@@ -2,7 +2,6 @@
 #include <types.h>
 
 typedef unsigned long Pde;
-typedef unsigned long Pme;
 typedef unsigned long Pte;
 
 u_long freemem;
@@ -155,13 +154,13 @@ void uart_hex(unsigned int d) {
 void vm_init() {
     uart_init();
     Pde *pgdir;
-    freemem = KERNEL_PGDIR_PA;
+    freemem = P_PGDIR_BASE;
     pgdir = boot_alloc(BY2PG, BY2PG, 1);
 
     // 0x00000000 - 0x3F000000 Normal memory
-    boot_map_segment(pgdir, 0, MAXPA, 0, PTE_NORMAL | PTE_INNER_SHARE);
+    boot_map_segment(pgdir, 0, P_LIMIT, 0, PTE_NORMAL | PTE_INNER_SHARE);
     // 0x3F000000 - 0x40000000 Device I/O
-    boot_map_segment(pgdir, MAXPA, 0x01000000, MAXPA, PTE_DEVICE | PTE_OUTER_SHARE);
+    boot_map_segment(pgdir, P_LIMIT, 0x01000000, P_LIMIT, PTE_DEVICE | PTE_OUTER_SHARE);
     // One more page for control Regs
     boot_map_segment(pgdir, 0x40000000, BY2PG, 0x40000000, PTE_DEVICE | PTE_OUTER_SHARE);
 

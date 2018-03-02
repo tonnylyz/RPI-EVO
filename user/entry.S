@@ -1,7 +1,6 @@
 .data
 .global envs
-envs:
-	.word 0x90000000
+envs: .word 0x80000000
 
 .extern libmain
 

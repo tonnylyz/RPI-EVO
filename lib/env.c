@@ -6,10 +6,10 @@
 #include <pmap.h>
 #include <printf.h>
 
-struct Env *envs = (struct Env *) KERNEL_ENVS;        // All environments
-struct Env *curenv;            // the current env
+struct Env *envs = (struct Env *)K_ENVS_BASE;
+struct Env *curenv;
 
-static struct Env_list env_free_list;    // Free list
+static struct Env_list env_free_list;
 
 u_int mkenvid(struct Env *e) {
     static u_long next_env_id = 0;
@@ -54,16 +54,9 @@ static int env_setup_vm(struct Env *e) {
         panic("env_setup_vm - page_alloc error\n");
     }
     p->pp_ref++;
-    e->env_pgdir = (u_long *) page2pa(p);
+    e->env_pgdir = (u_long *) page2kva(p);
 
-    u_long va;
-    for (va = UENVS; va < UENVS + ROUND(NENV * sizeof(struct Env), BY2PG); va += BY2PG) {
-        page_insert((u_long *)KADDR(e->env_pgdir), pa2page(KERNEL_ENVS_PA + va - UENVS), va, PTE_USER | PTE_RO);
-    }
-
-    for (va = UPAGES; va < UPAGES + ROUND((MAXPA / BY2PG) * sizeof(struct Page), BY2PG); va += BY2PG) {
-        page_insert((u_long *)KADDR(e->env_pgdir), pa2page(KERNEL_PAGES_PA + va - UENVS), va, PTE_USER | PTE_RO);
-    }
+    map_segment(e->env_pgdir, U_ENVS_BASE, ROUND(sizeof(struct Env) * NENV, BY2PG), P_ENVS_BASE, PTE_USER | PTE_RO);
 
     return 0;
 }
@@ -84,7 +77,7 @@ int env_alloc(struct Env **newenv, u_int parent_id) {
     e->env_status = ENV_RUNNABLE;
 
     e->env_tf.spsr = 0;
-    e->env_tf.sp = USTACKTOP;
+    e->env_tf.sp = U_STACK_TOP;
 
     LIST_REMOVE(e, env_link);
     *newenv = e;
@@ -132,7 +125,7 @@ static void load_icode(struct Env *e, u_char *binary, u_int size) {
     if (r < 0) {
         panic("load_icode : Allocate page failed.");
     }
-    r = page_insert(e->env_pgdir, p, USTACKTOP - BY2PG, PTE_USER | PTE_RW);
+    r = page_insert(e->env_pgdir, p, U_STACK_TOP - BY2PG, PTE_USER | PTE_RW);
     if (r < 0) {
         panic("load_icode : Insert page failed.");
     }
@@ -150,32 +143,30 @@ void env_create(u_char *binary, unsigned int size) {
 }
 
 void env_free(struct Env *e) {
-    Pme *pme;
+    Pte *pme;
     Pte *pte;
-    u_long pdeno, pmeno, pteno, pdepa, pmepa;
+    u_long pdeno, pmeno, pteno;
     printf("[%08x] free env %08x\n", curenv ? curenv->env_id : 0, e->env_id);
-    for (pdeno = 0; pdeno < PDX(UTOP); pdeno++) {
-        if (!(((Pde *)KADDR(e->env_pgdir))[pdeno] & PTE_4KB)) {
+    for (pdeno = 0; pdeno < PDX(U_LIMIT); pdeno++) {
+        if (!(e->env_pgdir[pdeno] & PTE_4KB)) {
             continue;
         }
-        pdepa = PTE_ADDR(((Pde *)KADDR(e->env_pgdir)));
-        pme = (Pme *)KADDR(pdepa);
-        for (pmeno = 0; pmeno < PMX(UTOP); pmeno++) {
+        pme = (Pte *)KADDR(PTE_ADDR(e->env_pgdir));
+        for (pmeno = 0; pmeno < PMX(U_LIMIT); pmeno++) {
             if (!(pme[pmeno] & PTE_4KB)) {
                 continue;
             }
-            pmepa = PTE_ADDR(pme[pmeno]);
-            pte = (Pte *)KADDR(pmepa);
-            for (pteno = 0; pteno < PTX(UTOP); pteno++) {
+            pte = (Pte *)KADDR(PTE_ADDR(pme[pmeno]));
+            for (pteno = 0; pteno < PTX(U_LIMIT); pteno++) {
                 if (pte[pteno] & PTE_4KB) {
                     page_remove(e->env_pgdir, (pdeno << PDSHIFT) | (pmeno << PMSHIFT) | (pteno << PGSHIFT));
                 }
             }
+            page_decref(pa2page(PTE_ADDR(pme[pmeno])));
             pme[pmeno] = 0;
-            page_decref(pa2page(pmepa));
         }
-        ((Pde *)KADDR(e->env_pgdir))[pdeno] = 0;
-        page_decref(pa2page(pdepa));
+        page_decref(pa2page(PTE_ADDR(e->env_pgdir[pdeno])));
+        e->env_pgdir[pdeno] = 0;
     }
     page_decref(pa2page((u_long) e->env_pgdir));
     bzero(e, sizeof(struct Env));
@@ -201,12 +192,12 @@ void tlb_invalidate() {
 }
 
 void env_run(struct Env *e) {
-    struct Trapframe *old = (struct Trapframe *) (TIMESTACKTOP - sizeof(struct Trapframe));
+    struct Trapframe *old = (struct Trapframe *) (K_TIMESTACK_TOP - sizeof(struct Trapframe));
     if (curenv) {
         bcopy(old, &(curenv->env_tf), sizeof(struct Trapframe));
     }
     curenv = e;
     bcopy(&curenv->env_tf, old, sizeof(struct Trapframe));
-    set_ttbr0((u_long) curenv->env_pgdir);
+    set_ttbr0(((u_long)curenv->env_pgdir) & 0xFFFFFFFF);
     tlb_invalidate();
 }
