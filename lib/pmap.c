@@ -99,10 +99,19 @@ int page_insert(Pde *pgdir, struct Page *pp, u_long va, u_long perm) {
     PERM = perm | PTE_NORMAL | PTE_INNER_SHARE | PTE_AF | PTE_4KB;
     pgdir_walk(pgdir, va, 1, &pgtable_entry);
     if ((*pgtable_entry & PTE_4KB) != 0) {
-        printf("[WARNING] page_insert : a page was already here.\n");
+        if (pa2page(*pgtable_entry) != pp) {
+            page_remove(pgdir, va);
+        } else {
+            tlb_invalidate();
+            *pgtable_entry = page2pa(pp) | PERM;
+            return 0;
+        }
     }
-    *pgtable_entry = (PTE_ADDR(page2pa(pp)) | PERM);
     tlb_invalidate();
+    if (pgdir_walk(pgdir, va, 1, &pgtable_entry) != 0) {
+        panic ("page insert check failed .\n");
+    }
+    *pgtable_entry = page2pa(pp) | PERM;
     pp->pp_ref++;
     return 0;
 }

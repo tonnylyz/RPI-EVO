@@ -64,8 +64,6 @@ char syscall_cgetc();
 
 unsigned long syscall_pgtable_entry(unsigned long va);
 
-unsigned int syscall_fork();
-
 /////////////////////////////////////////////////////////////
 //                         String                          //
 /////////////////////////////////////////////////////////////
@@ -89,5 +87,9 @@ void user_bzero(void *b, unsigned long len);
 void ipc_send(unsigned int whom, unsigned long val, unsigned long srcva, unsigned long perm);
 
 unsigned long ipc_recv(unsigned int *whom, unsigned long dstva, unsigned long *perm);
+
+//////////////////////////////////////////////////////////////
+
+void set_pgfault_handler(void (*fn)(unsigned long va));
 
 #endif

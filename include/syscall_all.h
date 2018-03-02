@@ -27,7 +27,7 @@ unsigned int sys_env_alloc();
 
 int sys_set_env_status(int sysno, unsigned int envid, unsigned int status);
 
-int sys_set_trapframe(int sysno, unsigned int envid, struct Trapframe *tf);
+void sys_set_trapframe(int sysno, unsigned int envid, struct Trapframe *tf);
 
 void sys_panic(int sysno, char *msg);
 
@@ -38,8 +38,5 @@ int sys_ipc_can_send(int sysno, unsigned int envid, unsigned long value, unsigne
 char sys_cgetc();
 
 unsigned long sys_pgtable_entry(int sysno, unsigned long va);
-
-unsigned int sys_fork();
-
 
 #endif //RPI_LAB_SYSCALL_ALL_H

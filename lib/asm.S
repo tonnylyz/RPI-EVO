@@ -90,11 +90,13 @@ el1_sync:
     push_time_stack
     mrs x19, esr_el1
     lsr x19, x19, #26
-    cmp x19, #0x24
+    cmp x19, #0x20 // Instruction PG Fault
+    beq el1_sync_pgfault
+    cmp x19, #0x24 // Data PG Fault
     beq el1_sync_pgfault
     cmp x19, #0x15
     beq el1_sync_syscall
-    bl handle_err
+    bl handle_sync
 el1_sync_end:
     pop_time_stack
     eret

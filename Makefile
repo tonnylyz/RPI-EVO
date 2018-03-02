@@ -7,7 +7,7 @@ vmlinux_elf   := kernel.elf
 vmlinux_img   := kernel8.img
 link_script   := kernel.lds
 
-modules       := boot drivers init lib
+modules       := boot drivers init lib user
 objects       := $(boot_dir)/*.o \
                  $(init_dir)/*.o \
                  $(drivers_dir)/*.o \

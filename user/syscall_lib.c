@@ -65,7 +65,3 @@ char syscall_cgetc() {
 unsigned long syscall_pgtable_entry(unsigned long va) {
     return (unsigned long)msyscall(15, va, 0, 0, 0, 0);
 }
-
-unsigned int syscall_fork() {
-    return (unsigned int)msyscall(16, 0, 0, 0, 0, 0);
-}

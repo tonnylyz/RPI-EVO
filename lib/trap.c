@@ -4,6 +4,8 @@
 #include <mmu.h>
 #include <syscall_all.h>
 #include <types.h>
+#include <env.h>
+#include <pmap.h>
 
 u_int get_el() {
     u_int r;
@@ -78,8 +80,7 @@ void handle_syscall(int no, u_long a1, u_long a2, u_long a3, u_long a4, u_long a
             sys_set_return(result);
             break;
         case 10:
-            result = (u_long) sys_set_trapframe(no, (u_int) a1, (struct Trapframe *) a2);
-            sys_set_return(result);
+            sys_set_trapframe(no, (u_int) a1, (struct Trapframe *) a2);
             break;
         case 11:
             sys_panic(no, (char *) a1);
@@ -99,25 +100,37 @@ void handle_syscall(int no, u_long a1, u_long a2, u_long a3, u_long a4, u_long a
             result = sys_pgtable_entry(no, a1);
             sys_set_return(result);
             break;
-        case 16:
-            result = sys_fork();
-            sys_set_return(result);
-            break;
     }
 }
 
 void handle_pgfault() {
-    printf("\n[Page fault]\n");
-    printf("esr : [%08x]\n", get_esr());
-    printf("va  : [%l016x]\n", get_far());
-    while (1) {
-        asm volatile ("nop");
+    unsigned long bad_va;
+    bad_va = get_far();
+    if (curenv->env_pgfault_handler == 0) {
+        printf("\n[Page fault]\n");
+        printf("esr : [%08x]\n", get_esr());
+        printf("va  : [%l016x]\n", get_far());
+        while (1) {
+            asm volatile ("nop");
+        }
+    } else {
+        struct Trapframe *tf = (struct Trapframe *)(K_TIMESTACK_TOP - sizeof(struct Trapframe));
+        Pte *pte;
+        u_long elr = tf->elr;
+        struct Page *xpage = page_lookup(curenv->env_pgdir, U_STACK_TOP - BY2PG, &pte);
+        bcopy(tf, (void *) page2kva(xpage), sizeof(struct Trapframe));
+
+        tf->elr = curenv->env_pgfault_handler;
+        tf->sp = U_XSTACK_TOP;
+        tf->regs[0] = bad_va;
+        printf("\n[Page fault] elr %l016x @ %l016x -> %08x\n", elr, bad_va, curenv->env_pgfault_handler);
     }
 }
 
 void handle_sync() {
     printf("\n[Sync Exception]\n");
     printf("esr : [%08x]\n", get_esr());
+    printf("ec  : [%02x]\n", get_esr() >> 26);
     printf("far : [%l016x]\n", get_far());
     while (1) {
         asm volatile ("nop");

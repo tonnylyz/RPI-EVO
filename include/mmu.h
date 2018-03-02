@@ -58,7 +58,8 @@
 
 #define U_ENVS_BASE         0x80000000
 #define U_LIMIT             0x80000000
-#define U_STACK_TOP         0x70000000
+#define U_XSTACK_TOP        0x80000000
+#define U_STACK_TOP         0x01000000
 
 #define PTE_NORMAL      (0 << 2)
 #define PTE_DEVICE      (1 << 2)
@@ -74,6 +75,11 @@
 #define PTE_UXN         (1UL << 54)
 #define PTE_OUTER_SHARE (2 << 8)
 #define PTE_INNER_SHARE (3 << 8)
+
+// user-defined PTE_FLAG
+#define PTE_COW         (1UL << 55)
+#define PTE_LIBRARY     (1UL << 56)
+
 
 #define assert(x) do { if (!(x)) panic("assertion failed: %s", #x); } while (0)
 

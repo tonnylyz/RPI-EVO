@@ -23,12 +23,12 @@ void main() {
 
 
     // fktest.elf
-    //sd_readblock(3000, program, 151);
-    //env_create(program, 76992);
+    //sd_readblock(3000, program, 25);
+    //env_create(program, 12320);
 
     // pingpong.elf
-    sd_readblock(4000, program, 151);
-    env_create(program, 77152);
+    sd_readblock(4000, program, 25);
+    env_create(program, 12480);
 
     kclock_init();
     printf("kclock_init ok!\n");

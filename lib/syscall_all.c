@@ -125,6 +125,17 @@ unsigned int sys_env_alloc() {
         return r;
     }
     bcopy((void *)(K_TIMESTACK_TOP - sizeof(struct Trapframe)), &e->env_tf, sizeof(struct Trapframe));
+
+    Pte *ppte = NULL;
+    pgdir_walk(curenv->env_pgdir, U_STACK_TOP - BY2PG, 0, &ppte);
+    if (ppte != NULL) {
+        struct Page *ppc, *ppp;
+        ppp = pa2page(PTE_ADDR(*ppte));
+        page_alloc(&ppc);
+        bcopy((const void *) page2kva(ppp), (void *) page2kva(ppc), BY2PG);
+        page_insert(e->env_pgdir, ppc, U_STACK_TOP - BY2PG, PTE_USER | PTE_RW);
+    }
+
     e->env_status = ENV_NOT_RUNNABLE;
     e->env_tf.regs[0] = 0;
     e->env_ipc_recving = 0;
@@ -144,8 +155,9 @@ int sys_set_env_status(int sysno, unsigned int envid, unsigned int status) {
     return 0;
 }
 
-int sys_set_trapframe(int sysno, unsigned int envid, struct Trapframe *tf) {
-    panic("sys_set_trapframe not implemented!");
+void sys_set_trapframe(int sysno, unsigned int envid, struct Trapframe *tf) {
+    bcopy((void *) (U_STACK_TOP - BY2PG), (void *) (K_TIMESTACK_TOP - sizeof(struct Trapframe)), sizeof(struct Trapframe));
+    printf("back to address [%l016x] \n", ((struct Trapframe*)(U_STACK_TOP - BY2PG))->elr);
 }
 
 void sys_panic(int sysno, char *msg) {
@@ -189,25 +201,4 @@ unsigned long sys_pgtable_entry(int sysno, unsigned long va) {
         return 0;
     }
     return *pte;
-}
-
-unsigned int sys_fork() {
-    struct Env *e;
-    unsigned int envid;
-    unsigned long va;
-    unsigned long *pte;
-    struct Page *p;
-    struct Page *pp;
-    envid = sys_env_alloc();
-    envid2env(envid, &e, 0);
-    for (va = 0; va < U_STACK_TOP; va += BY2PG) {
-        p = page_lookup(curenv->env_pgdir, va, &pte);
-        if (p == NULL)
-            continue;
-        page_alloc(&pp);
-        bcopy((void *)page2kva(p), (void *)page2kva(pp), BY2PG);
-        page_insert(e->env_pgdir, pp, va, PTE_USER | PTE_RW);
-    }
-    e->env_status = ENV_RUNNABLE;
-    return envid;
 }
