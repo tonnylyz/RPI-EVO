@@ -62,8 +62,6 @@ int syscall_ipc_can_send(unsigned int envid, unsigned long value, unsigned long 
 
 char syscall_cgetc();
 
-unsigned long syscall_pgtable_entry(unsigned long va);
-
 /////////////////////////////////////////////////////////////
 //                         String                          //
 /////////////////////////////////////////////////////////////

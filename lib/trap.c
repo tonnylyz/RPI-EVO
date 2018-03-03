@@ -96,10 +96,6 @@ void handle_syscall(int no, u_long a1, u_long a2, u_long a3, u_long a4, u_long a
             result = (u_long) sys_cgetc();
             sys_set_return(result);
             break;
-        case 15:
-            result = sys_pgtable_entry(no, a1);
-            sys_set_return(result);
-            break;
     }
 }
 
@@ -114,8 +110,17 @@ void handle_pgfault() {
             asm volatile ("nop");
         }
     } else {
-        struct Trapframe *tf = (struct Trapframe *)(K_TIMESTACK_TOP - sizeof(struct Trapframe));
         Pte *pte;
+        pgdir_walk(curenv->env_pgdir, bad_va, 0, &pte);
+        if (*pte & PTE_COW == 0) {
+            printf("\n[Page fault]\n");
+            printf("esr : [%08x]\n", get_esr());
+            printf("va  : [%l016x]\n", get_far());
+            while (1) {
+                asm volatile ("nop");
+            }
+        }
+        struct Trapframe *tf = (struct Trapframe *)(K_TIMESTACK_TOP - sizeof(struct Trapframe));
         u_long elr = tf->elr;
         struct Page *xpage = page_lookup(curenv->env_pgdir, U_STACK_TOP - BY2PG, &pte);
         bcopy(tf, (void *) page2kva(xpage), sizeof(struct Trapframe));
@@ -123,7 +128,7 @@ void handle_pgfault() {
         tf->elr = curenv->env_pgfault_handler;
         tf->sp = U_XSTACK_TOP;
         tf->regs[0] = bad_va;
-        printf("\n[Page fault] elr %l016x @ %l016x -> %08x\n", elr, bad_va, curenv->env_pgfault_handler);
+        //printf("\n[Page fault] elr %l016x @ %l016x -> %08x\n", elr, bad_va, curenv->env_pgfault_handler);
     }
 }
 

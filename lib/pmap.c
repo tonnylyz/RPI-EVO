@@ -1,3 +1,4 @@
+#include <env.h>
 #include "pmap.h"
 struct Page *pages = (struct Page *)K_PAGES_BASE;
 static struct Page_list page_free_list;
@@ -76,6 +77,9 @@ int pgdir_walk(Pde *pgdir, u_long va, int create, Pte **ppte) {
         }
         page_alloc(&ppage);
         *pde = page2pa(ppage) | PTE_KERN | PTE_RW | PTE_AF | PTE_4KB;
+
+        page_insert(pgdir, ppage, UVPM + (PDX(va) << PGSHIFT), PTE_USER | PTE_RO);
+
         ppage->pp_ref = 1;
     }
     pme = (u_long *)KADDR(PTE_ADDR(*pde)) + PMX(va);
@@ -86,6 +90,9 @@ int pgdir_walk(Pde *pgdir, u_long va, int create, Pte **ppte) {
         }
         page_alloc(&ppage);
         *pme = page2pa(ppage) | PTE_KERN | PTE_RW | PTE_AF | PTE_4KB;
+
+        page_insert(pgdir, ppage, UVPT + (PDX(va) << PMSHIFT) + (PMX(va) << PGSHIFT), PTE_USER | PTE_RO);
+
         ppage->pp_ref = 1;
     }
     pte = (u_long *)KADDR(PTE_ADDR(*pme)) + PTX(va);

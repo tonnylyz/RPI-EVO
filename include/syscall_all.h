@@ -37,6 +37,4 @@ int sys_ipc_can_send(int sysno, unsigned int envid, unsigned long value, unsigne
 
 char sys_cgetc();
 
-unsigned long sys_pgtable_entry(int sysno, unsigned long va);
-
 #endif //RPI_LAB_SYSCALL_ALL_H

@@ -192,13 +192,3 @@ int sys_ipc_can_send(int sysno, unsigned int envid, unsigned long value, unsigne
 char sys_cgetc() {
     return uart_getc_kern();
 }
-
-unsigned long sys_pgtable_entry(int sysno, unsigned long va) {
-    Pte *pte;
-    struct Page *page;
-    page = page_lookup(curenv->env_pgdir, va, &pte);
-    if (page == NULL) {
-        return 0;
-    }
-    return *pte;
-}

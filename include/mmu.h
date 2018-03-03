@@ -17,6 +17,8 @@
 #define VPN(va) PPN(va)
 
 #define KADDR(pa) ((unsigned long)(pa) | 0xFFFFFF8000000000UL)
+#define PADDR(kva) ((unsigned long)(kva) & 0xFFFFFFFFUL)
+
 
 /*  Kernel/Physical Memory Layout
  *
@@ -60,6 +62,12 @@
 #define U_LIMIT             0x80000000
 #define U_XSTACK_TOP        0x80000000
 #define U_STACK_TOP         0x01000000
+
+
+#define UVPD                0x7040200000UL
+#define UVPM                0x7040000000UL
+#define UVPT                0x7000000000UL
+
 
 #define PTE_NORMAL      (0 << 2)
 #define PTE_DEVICE      (1 << 2)

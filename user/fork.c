@@ -4,11 +4,14 @@ extern struct Env *env;
 
 #define PAGE_FAULT_TEMP (U_XSTACK_TOP - 2 * BY2PG)
 
+extern unsigned long *vpt, *vpm, *vpd;
+
 static void pgfault(unsigned long va)
 {
     int r;
-    unsigned long pte = syscall_pgtable_entry(va);
+    unsigned long pte;
     va = (va >> PGSHIFT) << PGSHIFT;
+    pte = vpt[PDX(va) * 512 * 512 + PMX(va) * 512 + PTX(va)];
     if (!(pte & PTE_COW)) {
         user_panic("pgfault : not copy on write");
     }
@@ -16,7 +19,7 @@ static void pgfault(unsigned long va)
     if (r < 0) {
         user_panic("pgfault : syscall_mem_alloc");
     }
-    user_bcopy(va, PAGE_FAULT_TEMP, BY2PG);
+    user_bcopy((void *)va, (void *)PAGE_FAULT_TEMP, BY2PG);
     r = syscall_mem_map(0, PAGE_FAULT_TEMP, 0, va, PTE_USER | PTE_RW);
     if (r < 0) {
         user_panic("pgfault : syscall_mem_map");
@@ -33,9 +36,37 @@ extern void __asm_pgfault_handler(void);
 extern struct Env *envs;
 extern struct Env *env;
 
+static void duppage(unsigned int envid, unsigned long va, unsigned long pte)
+{
+    int r;
+    unsigned long perm;
+    perm = pte & 0xFFF;
+    if (pte & PTE_LIBRARY) {
+        r = syscall_mem_map(0, va, envid, va, perm & PTE_LIBRARY);
+        if (r < 0) {
+            writef("[ERR] duppage : syscall_mem_map #-1\n");
+        }
+    } else if ((perm & PTE_RO) == 0 || (pte & PTE_COW) != 0) {
+        r = syscall_mem_map(0, va, envid, va, PTE_USER | PTE_RO | PTE_COW);
+        if (r < 0) {
+            writef("[ERR] duppage : syscall_mem_map #0\n");
+        }
+        r = syscall_mem_map(0, va, 0,     va, PTE_USER | PTE_RO | PTE_COW);
+        if (r < 0) {
+            writef("[ERR] duppage : syscall_mem_map #1\n");
+        }
+    } else {
+        r = syscall_mem_map(0, va, envid, va, perm);
+        if (r < 0) {
+            writef("[ERR] duppage : syscall_mem_map #3\n");
+        }
+    }
+}
+
 int fork() {
     unsigned int envid;
     int ret;
+    unsigned long va, i, j, k, pte;
 
     set_pgfault_handler(pgfault);
     envid = syscall_env_alloc();
@@ -48,14 +79,21 @@ int fork() {
         return 0;
     }
 
-    unsigned long va;
-    for (va = 0; va < U_STACK_TOP - BY2PG; va += BY2PG) {
-        unsigned long pte = syscall_pgtable_entry(va);
-        if (pte == 0) continue;
-        syscall_mem_map(0, va, envid, va, PTE_USER | PTE_RO | PTE_COW);
-        syscall_mem_map(0, va, 0,     va, PTE_USER | PTE_RO | PTE_COW);
+    for (i = 0; i < 512; i++) {
+        if (vpd[i] == 0) continue;
+        for (j = 0; j < 512; j++) {
+            if (vpm[i * 512 + j] == 0) continue;
+            for (k = 0; k < 512; k++) {
+                pte = vpt[i * 512 * 512 + j * 512 + k];
+                if (pte == 0) continue;
+                va = (i * 512 * 512 + j * 512 + k) << PGSHIFT;
+                if (va >= U_STACK_TOP - BY2PG) goto DUPPAGE_OK;
+                duppage(envid, va, pte);
+            }
+        }
     }
 
+    DUPPAGE_OK:
     ret = syscall_mem_alloc(envid, U_XSTACK_TOP - BY2PG, PTE_USER | PTE_RW);
     if (ret < 0) {
         user_panic("[ERR] fork %d : syscall_mem_alloc failed", envid);
