@@ -28,7 +28,6 @@ static void pgfault(unsigned long va)
     if (r < 0) {
         user_panic("pgfault : syscall_mem_unmap");
     }
-    syscall_set_trapframe(0, 0); // Resume trap frame
 }
 
 extern void __asm_pgfault_handler(void);

@@ -156,8 +156,7 @@ int sys_set_env_status(int sysno, unsigned int envid, unsigned int status) {
 }
 
 void sys_set_trapframe(int sysno, unsigned int envid, struct Trapframe *tf) {
-    bcopy((void *) (U_STACK_TOP - BY2PG), (void *) (K_TIMESTACK_TOP - sizeof(struct Trapframe)), sizeof(struct Trapframe));
-    printf("back to address [%l016x] \n", ((struct Trapframe*)(U_STACK_TOP - BY2PG))->elr);
+    assert("sys_set_trapframe not implemented.");
 }
 
 void sys_panic(int sysno, char *msg) {

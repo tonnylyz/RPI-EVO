@@ -121,14 +121,10 @@ void handle_pgfault() {
             }
         }
         struct Trapframe *tf = (struct Trapframe *)(K_TIMESTACK_TOP - sizeof(struct Trapframe));
-        u_long elr = tf->elr;
-        struct Page *xpage = page_lookup(curenv->env_pgdir, U_STACK_TOP - BY2PG, &pte);
-        bcopy(tf, (void *) page2kva(xpage), sizeof(struct Trapframe));
-
+        bcopy(tf, (void *) (U_XSTACK_TOP - sizeof(struct Trapframe)), sizeof(struct Trapframe));
         tf->elr = curenv->env_pgfault_handler;
-        tf->sp = U_XSTACK_TOP;
+        tf->sp = U_XSTACK_TOP - sizeof(struct Trapframe);
         tf->regs[0] = bad_va;
-        //printf("\n[Page fault] elr %l016x @ %l016x -> %08x\n", elr, bad_va, curenv->env_pgfault_handler);
     }
 }
 
