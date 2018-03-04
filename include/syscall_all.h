@@ -37,4 +37,6 @@ int sys_ipc_can_send(int sysno, unsigned int envid, unsigned long value, unsigne
 
 char sys_cgetc();
 
+void sys_emmc_read(int sysno, unsigned int sector, unsigned long va);
+
 #endif //RPI_LAB_SYSCALL_ALL_H

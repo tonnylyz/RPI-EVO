@@ -29,8 +29,13 @@ lab4: user sdcard.img
 	dd if=user/fktest.elf of=sdcard.img seek=3000
 	dd if=user/pingpong.elf of=sdcard.img seek=4000
 
+lab5: user sdcard.img
+	dd if=user/fstest.elf of=sdcard.img seek=5000
+	dd if=user/serv.elf of=sdcard.img seek=6000
+	dd if=fs/fs.img of=sdcard.img seek=10000
+
 sdcard.img:
-	dd if=/dev/zero of=sdcard.img bs=512 count=10000
+	dd if=/dev/zero of=sdcard.img bs=512 count=100000
 
 $(modules):
 	$(MAKE) --directory=$@

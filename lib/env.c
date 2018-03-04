@@ -57,6 +57,7 @@ static int env_setup_vm(struct Env *e) {
     e->env_pgdir = (u_long *) page2kva(p);
 
     map_segment(e->env_pgdir, U_ENVS_BASE, ROUND(sizeof(struct Env) * NENV, BY2PG), P_ENVS_BASE, PTE_USER | PTE_RO);
+    map_segment(e->env_pgdir, U_PAGES_BASE, ROUND(sizeof(struct Page) * (P_LIMIT / BY2PG), BY2PG), P_PAGES_BASE, PTE_USER | PTE_RO);
 
     page_insert(e->env_pgdir, pa2page(PADDR(e->env_pgdir)), UVPD, PTE_USER | PTE_RO);
     return 0;

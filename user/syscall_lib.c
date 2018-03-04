@@ -61,3 +61,7 @@ void syscall_ipc_recv(unsigned long dstva) {
 char syscall_cgetc() {
     return (char)msyscall(14, 0, 0, 0, 0, 0);
 }
+
+void syscall_emmc_read(unsigned int sector, unsigned long va) {
+    msyscall(15, sector, va, 0, 0, 0);
+}

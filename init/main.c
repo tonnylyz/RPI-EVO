@@ -27,8 +27,17 @@ void main() {
     //env_create(program, 15000);
 
     // pingpong.elf
-    sd_readblock(4000, program, 27);
-    env_create(program, 15000);
+    //sd_readblock(4000, program, 27);
+    //env_create(program, 15000);
+
+    // fstest.elf
+    sd_readblock(5000, program, 86);
+    env_create(program, 43168);
+
+    // serv.elf
+    sd_readblock(6000, program, 150);
+    env_create(program, 80000);
+
 
     kclock_init();
     printf("kclock_init ok!\n");

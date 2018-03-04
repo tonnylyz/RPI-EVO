@@ -96,6 +96,9 @@ void handle_syscall(int no, u_long a1, u_long a2, u_long a3, u_long a4, u_long a
             result = (u_long) sys_cgetc();
             sys_set_return(result);
             break;
+        case 15:
+            sys_emmc_read(no, (u_int)a1, a2);
+            break;
     }
 }
 

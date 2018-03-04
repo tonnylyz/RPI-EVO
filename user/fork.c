@@ -4,8 +4,6 @@ extern struct Env *env;
 
 #define PAGE_FAULT_TEMP (U_XSTACK_TOP - 2 * BY2PG)
 
-extern unsigned long *vpt, *vpm, *vpd;
-
 static void pgfault(unsigned long va)
 {
     int r;
@@ -31,9 +29,6 @@ static void pgfault(unsigned long va)
 }
 
 extern void __asm_pgfault_handler(void);
-
-extern struct Env *envs;
-extern struct Env *env;
 
 static void duppage(unsigned int envid, unsigned long va, unsigned long pte)
 {

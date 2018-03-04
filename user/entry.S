@@ -1,6 +1,8 @@
 .data
 .global envs
 envs: .dword 0x80000000
+.global pages
+pages: .dword 0x90000000
 
 .global __pgfault_handler
 __pgfault_handler: .dword 0
@@ -11,6 +13,10 @@ vpt: .dword 0x7000000000UL
 vpm: .dword 0x7040000000UL
 .global vpd
 vpd: .dword 0x7040200000UL
+
+.p2align 12
+.global fsipcbuf
+fsipcbuf: .space 4096
 
 __sp_user: .dword 0
 __elr_user: .dword 0
