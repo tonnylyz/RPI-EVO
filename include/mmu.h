@@ -58,6 +58,7 @@
 #define K_PGDIR_BASE        KADDR(P_PGDIR_BASE)
 #define K_STACK_TOP         KADDR(P_STACK_TOP)
 
+#define U_PAGES_BASE        0x90000000
 #define U_ENVS_BASE         0x80000000
 #define U_LIMIT             0x80000000
 #define U_XSTACK_TOP        0x80000000

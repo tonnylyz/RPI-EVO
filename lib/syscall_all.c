@@ -5,6 +5,7 @@
 #include <printf.h>
 #include <pmap.h>
 #include <sched.h>
+#include <sd.h>
 
 extern struct Env *curenv;
 
@@ -178,6 +179,12 @@ int sys_ipc_can_send(int sysno, unsigned int envid, unsigned long value, unsigne
         printf("[ERR] sys_ipc_can_send E_BAD_ENV\n");
         return -E_BAD_ENV;
     }
+    if (srcva != 0 && e->env_ipc_dstva != 0) {
+        Pte *pte;
+        struct Page *p = page_lookup(curenv->env_pgdir, srcva, &pte);
+        page_insert(e->env_pgdir, p, e->env_ipc_dstva, perm | PTE_4KB | PTE_USER | PTE_RW);
+        e->env_ipc_perm = perm;
+    }
     if (!e->env_ipc_recving) {
         return -E_IPC_NOT_RECV;
     }
@@ -190,4 +197,13 @@ int sys_ipc_can_send(int sysno, unsigned int envid, unsigned long value, unsigne
 
 char sys_cgetc() {
     return uart_getc_kern();
+}
+
+void sys_emmc_read(int sysno, unsigned int sector, unsigned long va) {
+    struct Page *page;
+    page_alloc(&page);
+    u_char *buf = (u_char *)page2kva(page);
+    sector = 10000 + sector;
+    sd_readblock(sector, buf, 8);
+    page_insert(curenv->env_pgdir, page, va, PTE_USER | PTE_RW);
 }
